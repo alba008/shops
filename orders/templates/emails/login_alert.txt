@@ -1,0 +1,4 @@
+Hi {{ user.first_name|default:user.username }},
+
+We noticed a new login to your account on {{ timestamp }}.
+If this wasn't you, please reset your password.

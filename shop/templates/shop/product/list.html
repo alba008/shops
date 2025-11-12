@@ -1,0 +1,252 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+  {% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+<!-- Optional: Hide scrollbar on mobile -->
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<div
+  x-data="{
+    banners: [
+      {% for banner in banners %}
+        {
+          title: '{{ banner.title|escapejs }}',
+          description: '{{ banner.description|escapejs }}',
+          image: '{{ banner.image.url }}',
+          link: '{{ banner.link|default:'#' }}',
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    current: 0,
+    startAutoplay() {
+      setInterval(() => {
+        this.nextSlide();
+      }, 5000);
+    },
+    nextSlide() {
+      this.current = (this.current + 1) % this.banners.length;
+    },
+    prevSlide() {
+      this.current = (this.current - 1 + this.banners.length) % this.banners.length;
+    }
+  }"
+  x-init="startAutoplay()"
+  class="relative w-full overflow-hidden mb-6 h-48 bg-white"
+>
+  <!-- Slide Container -->
+  <div class="relative h-full">
+    <template x-for="(banner, index) in banners" :key="index">
+      <div
+        x-show="current === index"
+        x-transition:enter="transition ease-out duration-700"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-500"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="absolute inset-0 flex items-center justify-center"
+      >
+        <a :href="banner.link" class="block w-922 h-full">
+          <img :src="banner.image" :alt="banner.title" class="w-928 h-300 object-fill" />
+        </a>
+      </div>
+    </template>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <button
+    @click="prevSlide"
+    class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 px-3 py-1 text-lg z-10 shadow hover:bg-opacity-90"
+  >
+    &#10094;
+  </button>
+  <button
+    @click="nextSlide"
+    class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 px-3 py-1 text-lg z-10 shadow hover:bg-opacity-90"
+  >
+    &#10095;
+  </button>
+</div>
+
+
+<!-- Shop by Category Preview -->
+<!-- Shop by Category (Horizontal Scroll on Mobile) -->
+<section class="max-w-7xl mx-auto px-4 py-8 bg-gray-50">
+  <h3 class="text-s font-bold text-center text-gray-800 mb-6">Shop by Category</h3>
+  <div class="flex gap-6 overflow-x-auto no-scrollbar pb-2 sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-6 sm:overflow-visible">
+    {% for category in categories %}
+      {% with products=category.products.all|slice:":8" %}
+      {% if products %}
+      <a href="{{ category.get_absolute_url }}" class="flex-shrink-0 flex flex-col items-center w-24 sm:w-auto group">
+        <div class="w-24 h-24 rounded-full overflow-hidden shadow-md border-2 border-gray-200 group-hover:scale-105 transition-transform duration-300  transition-transform duration-900 ease-in-out hover:scale-105 hover:shadow-2xl transition duration-500 ease-in-out transform hover:scale-105">
+          <img src="{% if products.0.image %}{{ products.0.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}"
+               alt="{{ category.name }}"
+               class="w-full h-full object-fill">
+        </div>
+        <span class="mt-2 text-sm text-center font-medium text-gray-700 group-hover:text-blue-600" >{{ category.name }}</span>
+      </a>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+  <div id="products-section">
+
+  </div>
+</section>
+
+<section>
+
+  <h4 class="text-1xl font-bold text-center text-gray-900 my-6" >Products</h4>
+  <!-- Product Grid -->
+  {% if products %}
+
+  <h1 class="text-l font-bold text-center text-gray-800 mb-6">
+    {% if category %}{{ category.name }}{% else %}All Products{% endif %}
+  </h1>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-gray-100" >
+    
+    {% for product in products %}
+    <div class="bg-white shadow p-1 m-3 text-center rounded-lg  transition-transform duration-900 ease-in-out hover:scale-105 hover:shadow-2xl transition duration-500 ease-in-out transform hover:scale-105">
+      <div class="relative">
+        <a href="{{ product.get_absolute_url }}">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-180 w-full object-fill">
+        </a>
+        <!-- Star Rating Overlay -->
+        <div class="absolute top-2 right-2 bg-white/70 backdrop-blur-sm rounded px-0 py-1 text-yellow-400 text-xs flex gap-0.2">
+          {% for _ in product.get_star_rating %}<i class="fa fa-star"></i>{% endfor %}
+          {% for _ in product.get_empty_stars %}<i class="fa fa-star text-gray-300"></i>{% endfor %}
+        </div>
+      </div>
+      <h3 class="text-xs font-semibold text-blue-700 mt-2">{{ product.name }}</h3>
+      <p class="text-green-600 font-bold text-xs">${{ product.price }}</p>
+      <a href="{{ product.get_absolute_url }}" class="m-2 inline-block bg-gray-800 text-white px-3 py-1 rounded text-xs">
+        <i class="fa-brands "></i> Buy Now
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <p class="text-center text-gray-500">No products found. Try a different search.</p>
+  {% endif %}
+</section>
+
+  <h4 class="text-2xl font-bold text-center text-gray-900 my-6">Featured Products</h4>
+
+  <div class="max-w-7xl mx-auto m-5 px-4 py-8 bg-gradient-to-r from-yellow-100 via-red to-red-200">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-70">
+      
+      
+        <!-- Div 1 -->
+      {% for img in gallery_images %}
+      {% if forloop.counter0 == 2 or forloop.counter0 == 5 or forloop.counter0 == 8 %}      <div class="relative h-63 overflow-hidden ">
+        <h3 class="text-1xl font-bold text-center text-gray-900 my-0">Black & White</h3>
+
+        <img src="{{ img.image.url }}" alt="{{ img.title }}" class="w-full h-60 object-contain rounded-lg  transition-transform duration-900 ease-in-out hover:scale-105 hover:shadow-2xl transition duration-500 ease-in-out transform hover:scale-105">
+        <div class="absolute inset-0 bg-none bg-opacity-40 flex items-center justify-end text-black">
+          
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+  
+      <!-- Div 2 -->
+    {% for img in gallery_images %}
+    {% if forloop.counter0 == 1 or forloop.counter0 == 5 or forloop.counter0 == 8 %}     <div class="relative h-63 overflow-hidden">
+      <h3 class="text-xl font-bold text-center text-gray-900 mb-2">Happy Feet</h3>
+      <img src="{{ img.image.url }}"
+           alt="{{ img.title }}"
+           class="w-full h-60 object-contain rounded-lg shadow-md transition-transform duration-900 ease-in-out hover:scale-105 hover:shadow-2xl transition duration-500 ease-in-out transform hover:scale-105">
+    </div>
+    
+    {% endif %}
+        {% endfor %}
+    
+  
+      <!-- Div 3 -->
+      {% for img in gallery_images %}
+      {% if forloop.counter0 == 0 or forloop.counter0 == 5 or forloop.counter0 == 8 %}       
+        <div class="relative h-63 overflow-hidden ">
+        <h3 class="text-1xl font-bold text-center text-gray-1200 my-0">Put your A Game</h3>
+ 
+        <img src="{{ img.image.url }}"alt="{{ img.title }}" class="w-full h-60 object-contain">
+        <div class="absolute inset-0 bg-none bg-opacity-40 flex items-center justify-end text-black">
+          
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}   
+    </div>
+  </div>
+  
+
+
+  <!-- Pagination -->
+  {% if products.has_other_pages %}
+  <div class="flex justify-center mt-8">
+    <nav class="inline-flex space-x-1">
+      {% if products.has_previous %}
+      <a href="?page={{ products.previous_page_number }}" class="px-3 py-1 border rounded-l bg-white hover:bg-blue-50">&laquo; Previous</a>
+      {% else %}
+      <span class="px-3 py-1 border rounded-l bg-gray-100 text-gray-400">&laquo; Previous</span>
+      {% endif %}
+
+      {% for num in products.paginator.page_range %}
+      {% if products.number == num %}
+      <span class="px-3 py-1 border bg-blue-600 text-white">{{ num }}</span>
+      {% else %}
+      <a href="?page={{ num }}" class="px-3 py-1 border bg-white hover:bg-blue-50">{{ num }}</a>
+      {% endif %}
+      {% endfor %}
+
+      {% if products.has_next %}
+      <a href="?page={{ products.next_page_number }}" class="px-3 py-1 border rounded-r bg-white hover:bg-blue-50">Next &raquo;</a>
+      {% else %}
+      <span class="px-3 py-1 border rounded-r bg-gray-100 text-gray-400">Next &raquo;</span>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Alpine.js carousel logic -->
+<script>
+  function carousel() {
+    return {
+      current: 0,
+      interval: null,
+      banners: [
+        {% for banner in banners %}
+          { src: "{{ banner.image.url }}", title: "{{ banner.title|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      startAutoplay() {
+        this.interval = setInterval(() => {
+          this.nextSlide();
+        }, 4000); // every 4 seconds
+      },
+      nextSlide() {
+        this.current = (this.current + 1) % this.banners.length;
+      },
+      prevSlide() {
+        this.current = (this.current === 0) ? this.banners.length - 1 : this.current - 1;
+      }
+    }
+  }
+</script>
+{% endblock %}

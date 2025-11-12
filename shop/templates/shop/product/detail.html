@@ -1,0 +1,137 @@
+{% extends "shop/base.html" %}
+{% load i18n static %}
+{% block title %}
+  {{ product.name }}
+{% endblock %}
+
+{% block content %}
+
+    
+<!-- product_detail.html -->
+<div class="max-w-8xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+
+  <!-- Main Image -->
+  <div>
+   <img
+    id="mainImage"
+    src="{{ product.image.url }}"
+    class="w-full rounded-lg border mb-4"
+    alt="{{ product.name }}"
+   >
+
+   <!-- Thumbnails -->
+    <div class="flex gap-2 flex-wrap">
+    {% for img in product.gallery.all %}
+      <img
+        src="{{ img.image.url }}"
+        class="w-16 h-16 object-cover rounded cursor-pointer border hover:opacity-75"
+        onclick="document.getElementById('mainImage').src='{{ img.image.url }}'"
+      >
+    {% endfor %}
+    </div>
+
+  </div>
+
+
+  <!-- Product Info -->
+  <div class="space-y-6">
+    <h2 class="text-2xl font-semibold text-gray-800">{{ product.name }}</h2>
+    <p class="text-sm text-gray-500">Brand: <span class="font-semibold">{{ product.brand }}</span></p>
+    
+    <div class="flex items-center gap-2">
+      <span class="text-yellow-400 text-xl">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
+      <span class="text-sm text-gray-500">4.5 ({{ product.reviews.count }} reviews)</span>
+    </div>
+
+    <p class="text-2xl text-green-600 font-bold">${{ product.price }}</p>
+    <p class="text-sm text-gray-400">Free Returns on some sizes and colors</p>
+
+    <!-- Color Options -->
+    <div>
+      <h4 class="font-semibold mb-1">Color:</h4>
+      <div class="flex gap-2">
+        {% for color in product.colors.all %}
+          <div class="w-6 h-6 rounded-full border border-gray-300 cursor-pointer" style="background-color: {{ color.hex }}"></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Size Options -->
+    <div>
+      <h4 class="font-semibold mb-1">Size:</h4>
+      <select class="w-full p-2 border border-gray-300 rounded">
+        {% for size in product.sizes.all %}
+          <option>{{ size.label }}</option>
+        {% endfor %}
+      </select>
+      <a href="#" class="text-sm text-blue-600 mt-1 inline-block">View Size Chart</a>
+    </div>
+
+
+    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="space-y-4">
+      {{ cart_product_form }}
+      {% csrf_token %}
+      <button type="submit" class="w-full md:w-auto bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition font-semibold text-xs">
+        {% translate "Add to cart" %}
+      </button>
+    </form>
+
+
+    <!-- Description -->
+    <div class="text-sm text-gray-600 leading-6">
+      <p><strong>Material:</strong> {{ product.material }}</p>
+      <p><strong>Care:</strong> {{ product.care_instructions }}</p>
+      <p><strong>Pattern:</strong> {{ product.pattern }}</p>
+      <p><strong>About:</strong> {{ product.description|linebreaks }}</p>
+    </div>
+
+    <!-- Gift Section -->
+    <div class="bg-gray-100 p-4 rounded text-sm text-gray-700">
+      🎁 Makes a great gift for mom, daughter, wife, or friend!
+    </div>
+  </div>
+
+
+
+ 
+
+    <!-- Shipping Info -->
+    
+    <div class="lg:col-span-1 bg-gray-50 border rounded-lg p-5 shadow-s">
+      <h3 class="text-md font-bold text-gray-800 mb-3">Shipping Information</h3>
+      <ul class="text-sm text-gray-600 space-y-2">
+        <li><i class="fas fa-truck text-blue-500 mr-2"></i> Ships within 2-3 business days</li>
+        <li><i class="fas fa-globe text-blue-500 mr-2"></i> Worldwide shipping available</li>
+        <li><i class="fas fa-box text-blue-500 mr-2"></i> Secure packaging for all orders</li>
+        <li><i class="fas fa-undo text-blue-500 mr-2"></i> 7-day return policy</li>
+        <li><i class="fas fa-shield-alt text-blue-500 mr-2"></i> 100% buyer protection</li>
+      </ul>
+    </div>
+  
+ 
+</div>
+ 
+
+    {% if recommended_products %}
+    <div class="mt-12">
+      <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">{% translate "People who bought this also bought" %}</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for p in recommended_products %}
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+          <a href="{{ p.get_absolute_url }}">
+            <img src="{% if p.image %}{{ p.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" 
+                 alt="{{ p.name }}" class="w-full h-40 object-cover">
+          </a>
+          <div class="p-4 text-center">
+            <a href="{{ p.get_absolute_url }}" class="text-sm font-medium text-gray-800 hover:text-blue-600">{{ p.name }}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

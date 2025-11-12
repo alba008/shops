@@ -1,0 +1,11 @@
+2025-02-09 10:51:29.545 EST [1812] LOG:  starting PostgreSQL 14.15 (Homebrew) on aarch64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.4), 64-bit
+2025-02-09 10:51:29.546 EST [1812] LOG:  listening on IPv6 address "::1", port 5432
+2025-02-09 10:51:29.546 EST [1812] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-02-09 10:51:29.546 EST [1812] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2025-02-09 10:51:29.548 EST [1813] LOG:  database system was shut down at 2025-02-09 10:50:38 EST
+2025-02-09 10:51:29.551 EST [1812] LOG:  database system is ready to accept connections
+2025-02-09 10:52:55.582 EST [2306] FATAL:  database "shop" does not exist
+2025-02-09 18:21:43.459 EST [1812] LOG:  received smart shutdown request
+2025-02-09 18:21:43.464 EST [1812] LOG:  background worker "logical replication launcher" (PID 1819) exited with exit code 1
+2025-02-09 18:21:43.464 EST [1814] LOG:  shutting down
+2025-02-09 18:21:43.488 EST [1812] LOG:  database system is shut down

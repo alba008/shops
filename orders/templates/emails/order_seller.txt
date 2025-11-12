@@ -1,0 +1,10 @@
+New paid order #{{ order.id }}
+Buyer: {{ order.first_name }} {{ order.last_name }} <{{ order.email }}>
+
+Subtotal: {{ subtotal_display }}
+{% if discount_display and discount_display != "$0.00" %}Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}: -{{ discount_display }}{% endif %}
+{% if shipping_display and shipping_display != "$0.00" %}Shipping{% if shipping_method_label %} ({{ shipping_method_label }}){% endif %}: {{ shipping_display }}{% endif %}
+{% if tax_display and tax_display != "$0.00" %}Tax{% if tax_rate_display %} ({{ tax_rate_display }}){% endif %}: {{ tax_display }}{% endif %}
+Total: {{ total_display }}
+
+Admin: {{ frontend_url }}/admin/orders/{{ order.id }}

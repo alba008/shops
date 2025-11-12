@@ -1,0 +1,28 @@
+{{ site_name }} — Payment confirmed for order #{{ order.id }}
+
+Hi {{ order.first_name|default:"" }},
+
+We’ve received your payment. We’ll notify you again when your order ships.
+
+Items:
+{% for it in items %}
+- {{ it.product }} ×{{ it.quantity }}  ({{ it.price_display }}) = {{ it.line_total_display }}
+{% endfor %}
+
+Subtotal: {{ subtotal_display }}
+{% if discount_display and discount_display != "$0.00" %}
+Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}: -{{ discount_display }}
+{% endif %}
+{% if shipping_display and shipping_display != "$0.00" %}
+Shipping{% if shipping_method_label %} ({{ shipping_method_label }}){% endif %}: {{ shipping_display }}
+{% endif %}
+{% if tax_display and tax_display != "$0.00" %}
+Tax{% if tax_rate_display %} ({{ tax_rate_display }}){% endif %}: {{ tax_display }}
+{% endif %}
+Total: {{ total_display }}
+
+{% if frontend_url %}
+Track your order: {{ frontend_url }}/orders/{{ order.id }}
+{% endif %}
+
+{{ site_name }} · {{ site_domain }}

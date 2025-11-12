@@ -1,0 +1,69 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p style="margin:0 0 12px;"><strong>New paid order #{{ order.id }}</strong></p>
+
+<p style="margin:0 0 8px;color:#6b7280;">Buyer: {{ order.first_name }} {{ order.last_name }} &lt;{{ order.email }}&gt;</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  <thead>
+    <tr>
+      <th align="left" style="padding:8px 0;border-bottom:1px solid #eee;">Item</th>
+      <th align="center" style="padding:8px 0;border-bottom:1px solid #eee;">Qty</th>
+      <th align="right" style="padding:8px 0;border-bottom:1px solid #eee;">Price</th>
+      <th align="right" style="padding:8px 0;border-bottom:1px solid #eee;">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for it in items %}
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ it.product }}</td>
+      <td align="center" style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ it.quantity }}</td>
+      <td align="right" style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ it.price_display }}</td>
+      <td align="right" style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ it.line_total_display }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;">
+  <table role="presentation" cellpadding="0" cellspacing="0" style="min-width:260px;">
+    <tr>
+      <td style="padding:4px 0;color:#6b7280;">Subtotal</td>
+      <td align="right" style="padding:4px 0;color:#111827;">{{ subtotal_display }}</td>
+    </tr>
+    {% if discount_display and discount_display != "$0.00" %}
+    <tr>
+      <td style="padding:4px 0;color:#6b7280;">Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}</td>
+      <td align="right" style="padding:4px 0;color:#ef4444;">-{{ discount_display }}</td>
+    </tr>
+    {% endif %}
+    {% if shipping_display and shipping_display != "$0.00" %}
+    <tr>
+      <td style="padding:4px 0;color:#6b7280;">
+        Shipping{% if shipping_method_label %} ({{ shipping_method_label }}){% endif %}
+      </td>
+      <td align="right" style="padding:4px 0;color:#111827;">{{ shipping_display }}</td>
+    </tr>
+    {% endif %}
+    {% if tax_display and tax_display != "$0.00" %}
+    <tr>
+      <td style="padding:4px 0;color:#6b7280;">
+        Tax{% if tax_rate_display %} ({{ tax_rate_display }}){% endif %}
+      </td>
+      <td align="right" style="padding:4px 0;color:#111827;">{{ tax_display }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td style="padding:8px 0;border-top:1px solid #e5e7eb;font-weight:700;">Total</td>
+      <td align="right" style="padding:8px 0;border-top:1px solid #e5e7eb;font-weight:700;">{{ total_display }}</td>
+    </tr>
+  </table>
+</div>
+
+<p style="margin:18px 0 0;">
+  <a href="{{ frontend_url }}/admin/orders/{{ order.id }}"
+     style="display:inline-block;padding:10px 16px;border-radius:10px;border:1px solid #111827;text-decoration:none;color:#111827;">
+     Open in Admin
+  </a>
+</p>
+{% endblock %}

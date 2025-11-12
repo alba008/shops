@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+  <meta charset="utf-8">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ site_name }} — Order #{{ order.id }} received</title>
+  <style>
+    /* Reset */
+    body,table,td,div,a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+    table,td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+    img { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; max-width:100%; }
+    table { border-collapse:collapse !important; }
+    body { margin:0 !important; padding:0 !important; width:100% !important; }
+
+    /* Base */
+    .wrapper { width:100%; background:#0F1115; padding:32px 0; }
+    .container { width:100%; max-width:640px; margin:0 auto; background:#11141a; border:1px solid #262a33; border-radius:14px; overflow:hidden; }
+    .px { padding-left:24px; padding-right:24px; }
+    .py { padding-top:24px; padding-bottom:24px; }
+    .center { text-align:center; }
+    .muted { color:rgba(255,255,255,.7); }
+    .text { color:#f8f9fb; font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+    .h1 { font-size:22px; font-weight:800; margin:0 0 4px; color:#f5deb3; }
+    .h2 { font-size:16px; font-weight:700; margin:0; color:#f8f9fb; }
+    .p  { font-size:14px; line-height:1.6; margin:8px 0 0; }
+    .divider { height:1px; background:#262a33; line-height:1px; }
+    .badge { display:inline-block; font-size:12px; letter-spacing:.3px; color:#121212; background:linear-gradient(90deg,#f5deb3,#caa46c,#f5deb3); padding:6px 10px; border-radius:999px; font-weight:700; }
+    .btn { display:inline-block; background:linear-gradient(90deg,#f5deb3,#caa46c,#f5deb3); color:#121212 !important; text-decoration:none; font-weight:800; padding:12px 18px; border-radius:10px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .card { background:#0f1217; border:1px solid #262a33; border-radius:10px; }
+    .price { white-space:nowrap; }
+
+    /* Items table */
+    .items th, .items td { font-size:13px; padding:10px 8px; color:#e9edf2; }
+    .items th { text-align:left; font-weight:700; border-bottom:1px solid #262a33; }
+    .items tfoot td { border-top:1px solid #262a33; font-weight:700; }
+
+    /* Light mode fallback */
+    @media (prefers-color-scheme: light) {
+      .wrapper { background:#f5f7fb; }
+      .container { background:#ffffff; border-color:#e6e9ef; }
+      .text { color:#1f2937; }
+      .muted { color:#4b5563; }
+      .divider { background:#e6e9ef; }
+      .card { background:#fafafa; border-color:#eceff4; }
+      .items th, .items td { color:#111827; }
+    }
+  </style>
+</head>
+<body class="text">
+  <!-- Preheader (hidden in most clients) -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+    We received your order #{{ order.id }} — we’ll notify you when payment is confirmed.
+  </div>
+
+  <table role="presentation" class="wrapper" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td>
+        <table role="presentation" class="container" cellpadding="0" cellspacing="0" width="100%">
+          <!-- Header -->
+          <tr>
+            <td class="px py">
+              <table role="presentation" width="100%">
+                <tr>
+                  <td class="h1 text"> {{ site_name }} </td>
+                  <td align="right">
+                    <span class="badge">Order received</span>
+                  </td>
+                </tr>
+              </table>
+              <div class="p muted">Order <span class="mono">#{{ order.id }}</span></div>
+            </td>
+          </tr>
+
+          <tr><td class="divider"></td></tr>
+
+          <!-- Greeting -->
+          <tr>
+            <td class="px py">
+              <div class="h2">Thanks {{ order.first_name|default:"" }}!</div>
+              <p class="p muted">
+                We’ve received your order and are holding your items. You’ll get another email once <strong>payment is confirmed</strong>.
+              </p>
+              {% if frontend_url %}
+              <p class="p">
+                <a class="btn" href="{{ frontend_url }}/orders/{{ order.id }}" target="_blank" rel="noopener">View your order</a>
+              </p>
+              {% endif %}
+            </td>
+          </tr>
+
+          <!-- Items -->
+          <tr>
+            <td class="px py">
+              <table role="presentation" width="100%" class="card">
+                <tr><td class="px py">
+                  <table role="presentation" width="100%" class="items">
+                    <thead>
+                      <tr>
+                        <th style="width:55%;">Item</th>
+                        <th style="width:15%;">Qty</th>
+                        <th style="width:15%;">Price</th>
+                        <th style="width:15%;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for it in items %}
+                      <tr>
+                        <td>{{ it.product }}</td>
+                        <td>{{ it.quantity }}</td>
+                        <td class="price">{{ it.price_display }}</td>
+                        <td class="price">{{ it.line_total_display }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="3" align="right">Subtotal</td>
+                        <td class="price">{{ subtotal_display }}</td>
+                      </tr>
+                      {% if discount_display and discount_display != "$0.00" %}
+                      <tr>
+                        <td colspan="3" align="right">Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}</td>
+                        <td class="price">-{{ discount_display }}</td>
+                      </tr>
+                      {% endif %}
+                      <tr>
+                        <td colspan="3" align="right">Total</td>
+                        <td class="price">{{ total_display }}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr><td class="divider"></td></tr>
+          <tr>
+            <td class="px py center muted" style="font-size:12px;">
+              {{ site_name }} · {{ site_domain }}<br/>
+              You’re receiving this because you placed an order on our site.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.log
+*.pot
+*.mo
+*.sqlite3
+
+# Virtualenvs
+.venv/
+venv/
+
+# Django collectstatic (if you ever run it inside this folder)
+static/
+staticfiles/
+
+# Local uploads (keep user content out of git if present here)
+media/
+
+# Env & secrets
+.env
+.env.*
+*.env
+
+# Node (this app folder has package.json)
+node_modules/
+
+# Editors/OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

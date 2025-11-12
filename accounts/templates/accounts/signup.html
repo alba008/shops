@@ -1,0 +1,103 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+
+<style>
+    /* General page container style */
+.p-3.mt-4 {
+    padding: 20px;
+    margin-top: 40px;
+}
+
+/* Centered container */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Form card styling */
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Card body */
+.card-body {
+    padding: 30px;
+}
+
+/* Header */
+.card-body h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Horizontal rule styling */
+.card-body hr {
+    border-top: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+/* Form field */
+form input, form select, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+/* Button style */
+.btn.bg-dark {
+    background-color: #343a40;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    width: 100%;
+    border: none;
+}
+
+.btn.bg-dark:hover {
+    background-color: #212529;
+    cursor: pointer;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .col-md-8 {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .card-body h2 {
+        font-size: 1.5rem;
+    }
+}
+
+</style>
+
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-3 mb-4 rounded">
+          <div class="card-body">
+            <h2>Sign Up</h2>
+            <hr />
+            <form method="POST">
+              {% csrf_token %}
+              {{ template_data.form.as_p }}
+              <button type="submit"
+                class="btn bg-dark text-white">Sign Up
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

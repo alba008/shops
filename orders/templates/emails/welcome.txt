@@ -1,0 +1,4 @@
+Hi {{ user.first_name|default:user.username }},
+
+Welcome to {{ site_name }}!
+Visit your account: {{ frontend_url }}

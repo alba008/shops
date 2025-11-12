@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+<p>We noticed a new login to your account on {{ timestamp }}.</p>
+<p>If this wasn’t you, please reset your password.</p>
+{% endblock %}

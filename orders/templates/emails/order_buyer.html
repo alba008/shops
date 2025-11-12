@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+  <meta charset="utf-8">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ site_name }} — Order #{{ order.id }} confirmed</title>
+  <style>
+    /* Email-safe reset */
+    body,table,td,div,a{ -webkit-text-size-adjust:100%; -ms-text-size-adjust:100% }
+    table,td{ mso-table-lspace:0pt; mso-table-rspace:0pt }
+    img{ -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; max-width:100% }
+    table{ border-collapse:collapse !important }
+    body{ margin:0 !important; padding:0 !important; width:100% !important; background:#0F1115 }
+
+    /* Theme (matches site) */
+    .wrap   { width:100%; padding:32px 0 }
+    .card   { background:#11141a; border:1px solid #262a33; border-radius:14px; overflow:hidden }
+    .inner  { padding:24px }
+    .text   { color:#f8f9fb; font-family:Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif }
+    .muted  { color:rgba(255,255,255,.7) }
+    .title  { font-size:22px; font-weight:800; margin:0 0 4px; color:#f5deb3 } /* gold */
+    .h2     { font-size:16px; font-weight:800; margin:0; color:#f8f9fb }
+    .p      { font-size:14px; line-height:1.6; margin:8px 0 0 }
+    .mono   { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace }
+    .rule   { height:1px; background:#262a33; line-height:1px }
+
+    /* Status + CTA */
+    .status { display:inline-block; font-size:12px; letter-spacing:.3px; color:#121212;
+              background:linear-gradient(90deg,#22c55e,#16a34a,#22c55e); /* green */
+              padding:6px 10px; border-radius:999px; font-weight:800 }
+    .btn    { display:inline-block; text-decoration:none; font-weight:800; color:#121212 !important;
+              padding:12px 18px; border-radius:10px;
+              background:linear-gradient(90deg,#f5deb3,#caa46c,#f5deb3) } /* site gold */
+
+    /* Summary chips */
+    .chips  { display:inline-block; background:#0f1217; border:1px solid #262a33; border-radius:10px; padding:10px 12px }
+    .chip   { display:inline-block; font-size:12px; color:#e9edf2; margin-right:10px }
+    .chip b { color:#f5deb3 }
+
+    /* Items table */
+    .tbl      { width:100% }
+    .items th, .items td { font-size:13px; padding:10px 8px; color:#e9edf2 }
+    .items th { text-align:left; font-weight:800; border-bottom:1px solid #262a33 }
+    .items tfoot td { border-top:1px solid #262a33; font-weight:800 }
+    .price { white-space:nowrap }
+
+    /* Light mode fallback */
+    @media (prefers-color-scheme:light){
+      body{ background:#f5f7fb }
+      .card{ background:#ffffff; border-color:#e6e9ef }
+      .text{ color:#1f2937 }
+      .muted{ color:#4b5563 }
+      .rule{ background:#e6e9ef }
+      .chips{ background:#fafafa; border-color:#eceff4 }
+      .items th, .items td{ color:#111827 }
+    }
+  </style>
+</head>
+<body class="text">
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+    Payment received — Order #{{ order.id }} is confirmed.
+  </div>
+
+  <table role="presentation" class="wrap" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td>
+        <table role="presentation" align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;">
+          <tr><td class="card">
+            <!-- Header -->
+            <table role="presentation" width="100%">
+              <tr>
+                <td class="inner">
+                  <table role="presentation" width="100%">
+                    <tr>
+                      <td class="title text">{{ site_name }}</td>
+                      <td align="right"><span class="status">Payment confirmed</span></td>
+                    </tr>
+                  </table>
+                  <div class="p muted">Order <span class="mono">#{{ order.id }}</span></div>
+                </td>
+              </tr>
+              <tr><td><div class="rule"></div></td></tr>
+
+              <!-- Greeting -->
+              <tr>
+                <td class="inner">
+                  <div class="h2">Thank you, {{ order.first_name|default:"" }} 🎉</div>
+                  <p class="p muted">We’ve received your payment. We’ll notify you again when your order ships.</p>
+
+                  {% if frontend_url %}
+                  <p class="p">
+                    <a class="btn" href="{{ frontend_url }}/orders/{{ order.id }}" target="_blank" rel="noopener">
+                      Track your order
+                    </a>
+                  </p>
+                  {% endif %}
+                </td>
+              </tr>
+
+              <!-- Quick summary chips -->
+              <tr>
+                <td class="inner">
+                  <div class="chips">
+                    <span class="chip"><b>Total:</b> {{ total_display }}</span>
+                    <span class="chip"><b>Subtotal:</b> {{ subtotal_display }}</span>
+                    {% if discount_display and discount_display != "$0.00" %}
+                      <span class="chip"><b>Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}:</b> -{{ discount_display }}</span>
+                    {% endif %}
+                    {% if shipping_display and shipping_display != "$0.00" %}
+                      <span class="chip"><b>Shipping{% if shipping_method_label %} ({{ shipping_method_label }}){% endif %}:</b> {{ shipping_display }}</span>
+                    {% endif %}
+                    {% if tax_display and tax_display != "$0.00" %}
+                      <span class="chip">
+                        <b>Tax{% if tax_rate_display %} ({{ tax_rate_display }}){% endif %}:</b> {{ tax_display }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Items -->
+              <tr>
+                <td class="inner">
+                  <table role="presentation" class="tbl" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:0;">
+                        <table role="presentation" width="100%" class="items card">
+                          <thead>
+                            <tr>
+                              <th style="width:55%;">Item</th>
+                              <th style="width:15%;">Qty</th>
+                              <th style="width:15%;">Price</th>
+                              <th style="width:15%;">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for it in items %}
+                            <tr>
+                              <td>{{ it.product }}</td>
+                              <td>{{ it.quantity }}</td>
+                              <td class="price">{{ it.price_display }}</td>
+                              <td class="price">{{ it.line_total_display }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <td colspan="3" align="right">Subtotal</td>
+                              <td class="price">{{ subtotal_display }}</td>
+                            </tr>
+                            {% if discount_display and discount_display != "$0.00" %}
+                            <tr>
+                              <td colspan="3" align="right">Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}</td>
+                              <td class="price">-{{ discount_display }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if shipping_display and shipping_display != "$0.00" %}
+                            <tr>
+                              <td colspan="3" align="right">
+                                Shipping{% if shipping_method_label %} ({{ shipping_method_label }}){% endif %}
+                              </td>
+                              <td class="price">{{ shipping_display }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if tax_display and tax_display != "$0.00" %}
+                            <tr>
+                              <td colspan="3" align="right">
+                                Tax{% if tax_rate_display %} ({{ tax_rate_display }}){% endif %}
+                              </td>
+                              <td class="price">{{ tax_display }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                              <td colspan="3" align="right">Total</td>
+                              <td class="price">{{ total_display }}</td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr><td><div class="rule"></div></td></tr>
+
+              <!-- Footer -->
+              <tr>
+                <td class="inner center muted" style="font-size:12px;">
+                  {{ site_name }} · {{ site_domain }}<br/>
+                  Questions? Reply to this email and we’ll help.
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

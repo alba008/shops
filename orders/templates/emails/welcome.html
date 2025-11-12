@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p>Hi {{ user.first_name|default:user.username }},</p>
+<p>Welcome to {{ site_name }}! We’re excited to have you.</p>
+<p><a href="{{ frontend_url }}" style="display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;border:1px solid #222;">Visit your account</a></p>
+{% endblock %}

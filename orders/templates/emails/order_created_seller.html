@@ -1,0 +1,38 @@
+<!doctype html>
+<html><body style="font-family:Inter,Arial,sans-serif;background:#0F1115;color:#f8f9fb;">
+  <div style="max-width:640px;margin:0 auto;padding:24px;border:1px solid #262a33;border-radius:12px;background:#11141a">
+    <h2 style="margin:0 0 8px;color:#f5deb3">{{ site_name }} — New order #{{ order.id }}</h2>
+    <p>A new order has been created.</p>
+
+    <table role="presentation" width="100%" style="border-collapse:collapse;margin:12px 0 16px">
+      <tr><td align="right">Subtotal</td><td width="120">{{ subtotal_display }}</td></tr>
+      {% if discount_display and discount_display != '$0.00' %}
+      <tr><td align="right">Discount{% if coupon_code %} ({{ coupon_code }}){% endif %}</td><td>-{{ discount_display }}</td></tr>
+      {% endif %}
+      <tr><td align="right"><strong>Total</strong></td><td><strong>{{ total_display }}</strong></td></tr>
+    </table>
+
+    <table role="presentation" width="100%" style="border-collapse:collapse">
+      <thead>
+        <tr><th align="left">Item</th><th align="right">Qty</th><th align="right">Price</th><th align="right">Total</th></tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr>
+          <td>{{ it.product }}</td>
+          <td align="right">{{ it.quantity }}</td>
+          <td align="right">{{ it.price_display }}</td>
+          <td align="right">{{ it.line_total_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p style="margin-top:16px">
+      <a href="https://{{ site_domain }}/admin/orders/order/{{ order.id }}/change/"
+         style="display:inline-block;padding:10px 14px;border-radius:8px;background:linear-gradient(90deg,#f5deb3,#caa46c,#f5deb3);color:#121212;text-decoration:none;font-weight:800">
+        Open in Django Admin
+      </a>
+    </p>
+  </div>
+</body></html>

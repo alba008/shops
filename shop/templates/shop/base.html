@@ -1,0 +1,266 @@
+
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}{% translate "SocKcs" %}{% endblock %}</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
+ 
+
+  <style>
+    :root {
+        --primary: #0d6efd;
+        --light: #ffffff;
+        --dark: #000000;
+    }
+
+    body {
+        padding-top: 100px;
+        background-color: var(--light);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .navbar-brand img {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        border: 2px solid #000;
+    }
+
+    .navbar-dark.bg-primary {
+        background: linear-gradient(to right, #0d6efd, #0a58ca);
+    }
+
+    .form-control {
+        border-radius: 25px;
+    }
+
+    #cart-count {
+        font-size: 0.75rem;
+    }
+
+    .category-nav {
+        background-color: white;
+        padding: 10px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .category-nav .nav-link {
+        font-weight: 500;
+        color: #000;
+        padding: 10px 15px;
+    }
+
+    .category-nav .nav-link:hover {
+        color: var(--primary);
+        text-decoration: underline;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+    }
+
+    #webchat {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
+</style>
+</head>
+<body class="bg-white-50">
+
+<!-- Amazon-like Navbar -->
+<header class="fixed top-0 w-full bg-gray-900 text-white shadow z-50 mb-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <a href="/" class="flex items-center">
+          <img src="{% static 'img/eagle.jpg' %}" alt="Logo" class="h-10 w-10 rounded-full border border-white">
+          <span class="ml-2 font-bold text-lg">SocKcs</span>
+        </a>
+      </div>
+
+      <!-- Search Bar with Category Dropdown -->
+      <form method="GET" action="{% url 'shop:product_list' %}" class="flex-grow mx-6 hidden md:flex items-center flex justify-center flex-wrap gap-0">
+        <!-- Search Bar with Category Dropdown and Redirection -->
+<div class="flex-grow mx-6 hidden md:flex items-center justify-center">
+  <div class="flex border rounded-full overflow-hidden bg-white h-9">
+    <select id="categoryRedirect" class="px-4 py-2 text-black bg-gray-100 text-xs border-r">
+      <option value="">All Categories</option>
+      {% for c in categories %}
+        <option value="{{ c.get_absolute_url }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="search" name="q" placeholder="Search products..." class="w-full px-4 py-2 text-black text-xs">
+    <button class="bg-yellow-400 text-black px-2 h-10 py-2 rounded-r-full font-semibold hover:bg-yellow-500">
+      <i class="fas fa-search"></i>
+    </button>
+  </div>
+ 
+</div>
+      </form>
+
+      <!-- Cart Icon -->
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'cart:cart_detail' %}" class="relative">
+          <i class="fas fa-shopping-cart text-2xl"></i>
+          <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full px-1">
+            {% if cart_items_count > 0 %}{{ cart_items_count }}{% else %}0{% endif %}
+          </span>
+        </a>
+        <button class="md:hidden focus:outline-none">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Search -->
+    <div class="md:hidden mt-2">
+      <form method="GET" action="{% url 'shop:product_list' %}" class="flex">
+        <select name="category" class="px-3 py-2 text-black bg-gray-100 text-sm border-r">
+          <option value="">All Categories</option>
+          {% for c in categories %}
+            <option value="{{ c.slug }}" {% if category and category.slug == c.slug %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+        <input type="search" name="q" placeholder="Search products..." class="w-full px-4 py-2 text-black">
+        <button type="submit" class="bg-yellow-400 text-black px-4 py-2 font-semibold hover:bg-yellow-500">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<!-- Category Navigation -->
+<div class="mt-0 mb-5 max-w-9xl mx-auto px-4 bg-gray-10">
+  <div class="flex justify-center flex-wrap gap-4">
+    <a href="{% url 'shop:product_lists' %}#products-section" class="text-xs px-2 py-2 rounded-full border {% if not category %}bg-blue-500 text-white{% else %}text-gray-700 border-gray-200{% endif %}">Home</a>
+    {% for c in categories %}
+    <a href="{{ c.get_absolute_url }}#products-section"
+    class="text-xs px-2 py-2 rounded-full border {% if category and category.slug == c.slug %}bg-blue-600 text-white{% else %}text-gray-700 border-gray-300{% endif %}">
+    {{ c.name }}
+ </a>    {% endfor %}
+  </div>
+</div>
+
+<!-- Page Content -->
+<div id="content" class="max-w-7xl mx-auto px-4 py-6">
+  {% block content %}{% endblock %}
+</div>
+
+<!-- Footer Webchat -->
+{% block footer %}
+<div id="webchat"></div>
+<script src="https://cdn.jsdelivr.net/npm/rasa-webchat@1.0.1/lib/index.js"></script>
+<script>
+  WebChat.default({
+    initPayload: "/get_started",
+    customData: { "language": "en" },
+    socketUrl: "http://localhost:5005",
+    socketPath: "/socket.io/",
+    title: "Alby's",
+    subtitle: "Ask about products!",
+    showFullScreenButton: false,
+    showMessageDate: true,
+    showCloseButton: true,
+    storage: "session"
+  });
+</script>
+{% endblock %}
+
+<!-- Tailwind Footer: Mobile (Icon only) -->
+<footer class="bg-gray-900 text-gray-300 py-6 border-t border-gray-800 sm:hidden">
+  <div class="flex justify-around items-center text-xl">
+    <a href="{% url 'shop:product_list' %}" class="hover:text-white"><i class="fas fa-store"></i></a>
+    <a href="{% url 'cart:cart_detail' %}" class="hover:text-white"><i class="fas fa-shopping-cart"></i></a>
+    <a href="#" class="hover:text-white"><i class="fas fa-info-circle"></i></a>
+    <a href="#" class="hover:text-white"><i class="fas fa-envelope"></i></a>
+    <a href="#" class="hover:text-white"><i class="fab fa-instagram"></i></a>
+  </div>
+</footer>
+
+<!-- Tailwind Footer: Desktop and Tablet -->
+<footer class="bg-gray-900 text-gray-300 py-10 mt-12 border-t border-gray-800 hidden sm:block">
+  <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <!-- Company Info -->
+    <div>
+      <h4 class="text-white font-semibold mb-4">SocKcs</h4>
+      <p class="text-xs text-gray-400">
+        Your trusted marketplace. Discover, shop, and enjoy premium products at fair prices.
+      </p>
+    </div>
+
+    <!-- Quick Links -->
+    <div>
+      <h5 class="text-white font-semibold mb-4">Quick Links</h5>
+      <ul class="space-y-2 text-xs">
+        <li><a href="{% url 'shop:product_list' %}" class="hover:text-white">All Products</a></li>
+        <li><a href="{% url 'cart:cart_detail' %}" class="hover:text-white">Cart</a></li>
+        <li><a href="#" class="hover:text-white">About Us</a></li>
+        <li><a href="#" class="hover:text-white">Contact</a></li>
+      </ul>
+    </div>
+
+    <!-- Categories -->
+    <div>
+      <h5 class="text-white font-semibold mb-4">Categories</h5>
+      <ul class="space-y-2 text-xs">
+        {% for c in categories|slice:":5" %}
+        <li><a href="{{ c.get_absolute_url }}" class="hover:text-white">{{ c.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Newsletter / Social -->
+    <div>
+      <h5 class="text-white font-semibold mb-4">Subscribe</h5>
+      <form action="#" method="post" class="flex items-center space-x-2 mb-4">
+        <input type="email" name="email" placeholder="Your email" class="w-full px-3 py-2 rounded bg-gray-800 text-xs border border-gray-700 focus:outline-none">
+        <button type="submit" class="bg-yellow-400 text-black px-4 py-2 rounded text-xs font-semibold hover:bg-yellow-500">Join</button>
+      </form>
+      <div class="flex space-x-4 text-lg">
+        <a href="#" class="hover:text-white"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="hover:text-white"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="mt-8 flex justify-center">
+    <div class="w-2/3 border-t border-gray-300 opacity-50 text-center text-xs text-gray-500 pt-4">
+      &copy; 2025 SocKcs. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('categoryRedirect');
+    select.addEventListener('change', function () {
+      if (this.value) {
+        window.location.href = this.value;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+
+<div class="max-w-4xl mx-auto flex items-center justify-center m-8">
+  {% for step in steps %}
+    <div class="flex items-center w-full">
+      <div class="flex flex-col items-center text-center w-20">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center
+          {% if forloop.counter <= current_step %}
+            bg-blue-900 text-white
+          {% else %}
+            bg-white border-2 border-gray-300 text-gray-500
+          {% endif %} transition duration-500 ease-in-out">
+          {% if step == "Cart" %}
+            <svg class="w-5 h-5" fill="white" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6H19" />
+            </svg>
+          {% elif step == "Shipping" %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 10h11l4-4H7l-4 4zm0 0v10h6v-6h4v6h6v-10" />
+            </svg>
+          {% elif step == "Payment" %}
+            <svg class="w-5 h-5" fill="green" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4l3 3m5 1H4a2 2 0 01-2-2V7a2 2 0 012-2h16a2 2 0 012 2v7a2 2 0 01-2 2z" />
+            </svg>
+          {% elif step == "Review" %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          {% endif %}
+        </div>
+        <span class="text-xs mt-1 {% if forloop.counter == current_step %}text-blue-500 font-semibold{% else %}text-gray-500{% endif %}">
+          {{ step }}
+        </span>
+      </div>
+
+      {% if not forloop.last %}
+        <div class="flex-auto h-1 mx-1 border-1
+          {% if forloop.counter < current_step %}
+            bg-blue-900
+          {% else %}
+            bg-gray-300
+          {% endif %} transition-all duration-500 ease-in-out">
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

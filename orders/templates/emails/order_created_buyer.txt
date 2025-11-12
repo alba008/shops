@@ -1,0 +1,8 @@
+{{ site_name }} — Order #{{ order.id }} received
+
+Thanks {{ order.first_name|default:"" }},
+We’ve received your order and are holding your items.
+You’ll get another email when payment is confirmed.
+
+Total: {{ total_display }}
+{% if frontend_url %}View your order: {{ frontend_url }}/orders/{{ order.id }}{% endif %}

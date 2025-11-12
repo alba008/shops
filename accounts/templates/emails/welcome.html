@@ -1,0 +1,10 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<p style="margin:0 0 12px;">Hi <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+<p style="margin:0;">Welcome to <strong>{{ site_name }}</strong>! Your account is ready.</p>
+<p style="margin:16px 0 0;">
+  <a href="{{ frontend_url }}/account" style="display:inline-block;padding:10px 16px;border-radius:10px;border:1px solid #111827;text-decoration:none;color:#111827;">
+    Visit your account
+  </a>
+</p>
+{% endblock %}

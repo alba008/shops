@@ -1,0 +1,66 @@
+ 
+{% extends "shop/base.html" %}
+{% load i18n static %}
+
+{% block title %}
+  {% translate "Checkout" %}
+{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-md">
+
+  {% include "shop/includes/checkout_steps.html" %}
+
+
+
+  <!-- Order Summary -->
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">{% translate "Your Order" %}</h2>
+    <ul class="divide-y divide-gray-200">
+      {% for item in cart %}
+      <li class="flex items-center justify-between py-2">
+        <div class="flex items-center space-x-3">
+          {% if item.product.image %}
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-20 h-18 object-cover rounded" />
+          {% else %}
+            <div class="w-12 h-12 bg-gray-200 rounded"></div>
+          {% endif %}
+          <span class="text-sm font-medium text-gray-800">{{ item.quantity }}x {{ item.product.name }}</span>
+        </div>
+        <span class="text-sm text-gray-600">${{ item.total_price|floatformat:2 }}</span>
+      </li>
+      {% endfor %}
+
+      {% if cart.coupon %}
+      <li class="flex justify-between py-2">
+        <span class="text-sm text-gray-700">
+          {% blocktranslate with code=cart.coupon.code discount=cart.coupon.discount %}
+            "{{ code }}" ({{ discount }}% off)
+          {% endblocktranslate %}
+        </span>
+        <span class="text-sm text-red-600">- ${{ cart.get_discount|floatformat:2 }}</span>
+      </li>
+      {% endif %}
+    </ul>
+    <div class="flex justify-between mt-4 border-t pt-4">
+      <span class="text-base font-semibold text-gray-800">{% translate "Total" %}</span>
+      <span class="text-base font-semibold text-gray-800">${{ cart.get_total_price_after_discount|floatformat:2 }}</span>
+    </div>
+  </div>
+
+  <form method="post" class="bg-white shadow-md p-3 space-y-4  mt-5 m-4 text-s">
+    {% csrf_token %}
+    <h3 class=" text-s font-semibold text-gray-900 mb-4 text-s">{% translate "Billing Information" %}</h3>
+    <div class="space-y-4 text-xs bg-gray-900">
+      {{ form.as_p }}
+    </div>
+    <div class="pt-4">
+      <button type="submit" class="text-s w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
+        {% translate "Place Order" %}
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+
