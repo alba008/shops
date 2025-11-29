@@ -28,6 +28,8 @@ from orders.views_public import (
     order_detail_public,
     order_items_public,
     last_order,
+    my_orders,  # 👈 new
+
 )
 
 # Cart API helper (hard clear after checkout)
@@ -39,6 +41,7 @@ from cart.views import empty_cart
 api_patterns = [
     # ---------- Public orders (EXPLICIT, must be FIRST) ----------
     path("api/orders/last/",           last_order,           name="orders-last"),
+    path("api/orders/my/",             my_orders,            name="orders-my"),   # 👈 new
     path("api/orders/<int:pk>/",       order_detail_public,  name="order-detail-public"),
     path("api/orders/<int:pk>/items/", order_items_public,   name="order-items-public"),
 

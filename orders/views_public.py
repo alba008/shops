@@ -5,11 +5,18 @@ from django.views.decorators.http import require_GET
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Coalesce, Cast
 
+# DRF imports for the authenticated "my orders" endpoint
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+
 def D(x):
     try:
         return Decimal(str(x))
     except Exception:
         return Decimal("0")
+
 
 def _items_payload(order_id):
     from .models import OrderItem
@@ -44,6 +51,7 @@ def _items_payload(order_id):
         })
         subtotal += line_total
     return items, subtotal
+
 
 def _order_payload(order, include_contact=False):
     # Prefer persisted fields (if present), fall back to derived values
@@ -96,6 +104,63 @@ def _order_payload(order, include_contact=False):
 
     return payload
 
+
+# ---------- NEW: authenticated "my orders" endpoint ----------
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_orders(request):
+    """
+    Return recent orders for the logged-in user.
+
+    - Prefer the FK user field if present (Order.user)
+    - Fallback to email match if no user-linked orders exist
+    """
+    from .models import Order
+
+    user = request.user
+    qs = Order.objects.none()
+
+    # Prefer FK match if model has a user field and requests are linked
+    if user.is_authenticated:
+        try:
+            qs = Order.objects.filter(user=user).order_by("-created")
+        except Exception:
+            qs = Order.objects.none()
+
+    # Fallback: look up by email if no FK matches
+    if not qs.exists() and getattr(user, "email", None):
+        qs = Order.objects.filter(email__iexact=user.email).order_by("-created")
+
+    qs = qs[:20]  # latest 20 orders
+
+    data = []
+    for o in qs:
+        # Compute or reuse totals in the same way as _order_payload
+        subtotal_amount = getattr(o, "subtotal_amount", None)
+        if subtotal_amount is None:
+            _, derived_subtotal = _items_payload(o.id)
+            subtotal_amount = derived_subtotal
+
+        discount_amount = getattr(o, "discount_amount", None) or D(getattr(o, "discount", 0))
+        shipping_amount = getattr(o, "shipping_amount", None) or D(0)
+        tax_amount      = getattr(o, "tax_amount", None) or D(0)
+
+        total_amount = getattr(o, "total_amount", None)
+        if total_amount is None:
+            total_amount = max(Decimal("0"), subtotal_amount - discount_amount) + shipping_amount + tax_amount
+
+        data.append({
+            "id": o.id,
+            "created": getattr(o, "created", None).isoformat() if getattr(o, "created", None) else None,
+            "total_amount": str(total_amount),
+            "status": getattr(o, "status", None)
+                      or getattr(o, "payment_status", None)
+                      or ("Paid" if getattr(o, "paid", False) else "Pending"),
+        })
+
+    return Response(data)
+
+
 @require_GET
 def order_detail_public(request, pk: int):
     from .models import Order
@@ -106,10 +171,12 @@ def order_detail_public(request, pk: int):
     include_contact = request.GET.get("full") in {"1", "true", "yes"}
     return JsonResponse(_order_payload(order, include_contact), status=200)
 
+
 @require_GET
 def order_items_public(request, pk: int):
     items, _ = _items_payload(pk)
     return JsonResponse(items, safe=False, status=200)
+
 
 @require_GET
 def last_order(request):

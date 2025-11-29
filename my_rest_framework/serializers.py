@@ -1,10 +1,25 @@
 # myshop/my_rest_framework/serializers.py
-from rest_framework import serializers
 
-class OrderCreateSerializer(serializers.Serializer):
-    first_name   = serializers.CharField(max_length=50)
-    last_name    = serializers.CharField(max_length=50)
-    email        = serializers.EmailField()
-    address      = serializers.CharField(max_length=250)
-    postal_code  = serializers.CharField(max_length=20)
-    city         = serializers.CharField(max_length=100)
+from rest_framework import serializers
+from orders.models import Order
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating an Order from checkout form.
+    Only exposes the fields that the frontend actually sends.
+    """
+
+    class Meta:
+        model = Order
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "address",
+            "postal_code",
+            "city",
+            "ship_state",
+            "ship_country",
+            "shipping_method",
+        ]
